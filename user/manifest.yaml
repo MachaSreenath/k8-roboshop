@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user
+  namespace: mynamespace
+data:
+  MONGO: "true"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  namespace: mynamespace
+  labels: 
+    app: user
+    project: roboshop
+    tier: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      app: user
+      project: roboshop
+      tier: app
+  template:
+    metadata:
+      labels: 
+        app: user
+        project: roboshop
+        tier: app
+    spec:
+      containers:
+      - name: user
+        image: sreenathsri/user:v1
+        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: user
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+  namespace: mynamespace
+spec:
+  selector:
+    app: user
+    project: roboshop
+    tier: app
+  ports:
+  - protocol: TCP
+    port: 8080 
+    targetPort: 8080 
